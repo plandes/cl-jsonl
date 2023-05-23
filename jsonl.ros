@@ -1,0 +1,32 @@
+#!/bin/sh
+#|-*- mode:lisp -*-|#
+#|
+exec ros -Q -- $0 "$@"
+|#
+(defpackage :ros.script.cl-jsonl
+  (:use :cl))
+(in-package :ros.script.cl-jsonl)
+
+;; add the working directory so asdf can load local libraries
+(asdf:initialize-source-registry
+   `(:source-registry
+     (:directory ,(truename "."))
+     :inherit-configuration))
+
+;; load the project in this directory
+(asdf:load-system "cl-jsonl")
+(asdf:load-system "gtwiwtg")
+(use-package :gtwiwtg)
+
+(defun main (&rest argv)
+  (cond
+    ;; test the project
+    ((equal argv '("test"))
+     (asdf:test-system "cl-jsonl"))
+    ;; run the project
+    ((and (> (length argv) 0) (equal (first argv) "run"))
+     (cl-jsonl:with-json-reader (ge (make-pathname :name (second argv)))
+       (format t "~S~%" (collect ge))))
+    ;; print help
+    (t (let ((u "usage: jsonl.ros <-h|--help|test|run [options]> ~%"))
+	 (format t u)))))

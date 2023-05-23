@@ -1,0 +1,43 @@
+## Id: github workflow build for Common Lisp package
+name: CI
+
+# github actions allows for running jobs on a wide variety of events
+on:
+  pull_request:
+  push:
+    paths-ignore:
+      - '**.md'
+      - '**.org'
+      - 'doc/*'
+    branches:
+      - master
+
+jobs:
+  test:
+    name: ${{ matrix.lisp }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      # each combination of lisp and os are tested
+      matrix:
+        #lisp: [sbcl-bin, ccl-bin]
+        lisp: [sbcl-bin]
+        os: [ubuntu-latest, macOS-latest]
+    steps:
+      # this action checks out our code in the working directory
+      - uses: actions/checkout@v2
+
+      # setup-lisp requires an env variable to be set, not matrix.lisp
+      - name: Set LISP env var
+        run: echo "LISP=${{ matrix.lisp }}" >> $GITHUB_ENV
+
+      # this action installs roswell and a few other utilities such as qlot
+      - uses: 40ants/setup-lisp@v2
+
+      # these steps run our tests
+      - name: Run tests
+        shell: bash
+        run: |
+          # Install the roswell script for the test library
+          ros install neil-lindquist/ci-utils
+          # Run the tests
+          run-fiveam -l cl-jsonl/tests cl-jsonl/tests::cl-jsonl
