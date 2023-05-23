@@ -2,7 +2,10 @@
 
 (defpackage #:cl-jsonl
   (:documentation
-   "A `gtwiwtg::generator!' class that iterates over JSON entries in files.")
+   "\
+A `gtwiwtg::generator!' class that iterates over JSON entries in files.  Only
+`with-json-reader' should be used, which closes the iterator when the end of
+file is not reached, which happens when only the first N blobs are parsed. ")
   (:use #:cl)
   (:export #:with-json-reader))
 (in-package #:cl-jsonl)
@@ -22,6 +25,7 @@ The JSON file name usually with a `.jsonl' extension.")
     (setf stream (open file-name))))
 
 (defmethod gtwiwtg::next ((g json-reader))
+  "Get the parsed JSON as a hashtable."
   (with-slots (stream next-entry) g
     (flet ((read-json ()
 	     (let ((res (handler-case
@@ -32,6 +36,8 @@ The JSON file name usually with a `.jsonl' extension.")
 	       (when (eq res :eof)
 		 (json-reader-close g))
 	       res)))
+      ;; the next JSON blob is parsed and queued so `has-next-p' knows when
+      ;; we've reached the end of file
       (when stream
 	(unless next-entry
 	  (setf next-entry (read-json)))
