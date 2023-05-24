@@ -22,6 +22,8 @@ exec ros -Q -- $0 "$@"
   (cond
     ;; test the project
     ((equal argv '("test"))
+     ;; (ql:quickload "fiveam")
+     ;; (fiveam:run! 'cl-jsonl/tests::cl-jsonl)
      (asdf:test-system "cl-jsonl"))
     ;; run the project
     ((and (> (length argv) 0) (equal (first argv) "run"))
