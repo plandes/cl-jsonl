@@ -39,7 +39,7 @@ An extensive changelog is available [here](CHANGELOG.md).
 
 ## License
 
-[MIT License](LICENSE.md)
+[GPL 3.0 License](LICENSE.md)
 
 Copyright (c) 2023 Paul Landes
 
